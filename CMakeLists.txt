@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.10)
 project(dgg4)
 set(APP_NAME sim)
 
-set(CMAKE_CXX_STANDARD 17) 
-set(CMAKE_CXX_STANDARD_REQUIRED ON) 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "-g -O2 -Wall -Wextra -Wpedantic")
 
 # Visualization is required
