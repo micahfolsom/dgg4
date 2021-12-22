@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "G4RunManagerFactory.hh"
 #include "G4UIExecutive.hh"
 #include "G4UImanager.hh"
@@ -5,8 +7,25 @@
 #include "QGSP_BERT_HP.hh"
 #include "actioninitialization.hpp"
 #include "detectorconstruction.hpp"
+using namespace std;
 
+void usage() {
+  cout << "Usage:\n";
+  cout << "  Visual mode: ./sim\n";
+  cout << "  Batch mode: ./sim [.mac file]" << endl;
+}
 int main(int argc, char* argv[]) {
+  // Provide some help
+  if (argc == 2) {
+    if ((string(argv[1]) == "--help") || (string(argv[1]) == "-h")) {
+      usage();
+      return 0;
+    }
+  }
+  if (argc > 2) {
+    usage();
+    return 0;
+  }
   auto* run_manager =
       G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default);
   run_manager->SetUserInitialization(new QGSP_BERT_HP);
