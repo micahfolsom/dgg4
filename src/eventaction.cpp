@@ -5,13 +5,9 @@
 #include "G4RunManager.hh"
 
 namespace dgg4 {
-EventAction::EventAction() {
-  G4cout << "Creating EventAction" << G4endl;
-}
+EventAction::EventAction() { G4cout << "Creating EventAction" << G4endl; }
 
-EventAction::~EventAction() {
-  G4cout << "Deleting EventAction" << G4endl;
-}
+EventAction::~EventAction() { G4cout << "Deleting EventAction" << G4endl; }
 
 void EventAction::EndOfEventAction(G4Event const* event) {
   auto run_man = G4RunManager::GetRunManager();

@@ -5,8 +5,8 @@
 namespace dgg4 {
 class EventAction : public G4UserEventAction {
  public:
-   EventAction();
-   ~EventAction();
+  EventAction();
+  ~EventAction();
   void EndOfEventAction(G4Event const* event) override final;
 };
 }  // namespace dgg4

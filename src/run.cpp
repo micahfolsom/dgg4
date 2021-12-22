@@ -34,25 +34,10 @@ void Run::RecordEvent(G4Event const* event) {
   G4cout << "Event had " << hc->entries() << " hits" << G4endl;
   // Hit doesn't have a constructor without args, so we use reserve()
   // to pre-allocate, instead of initializing with the # of elements
-  m_hits = vector<Hit>();
-  m_hits.reserve(hc->entries());
   for (std::size_t ihit = 0; ihit < hc->entries(); ++ihit) {
     auto hit_in = dynamic_cast<Hit*>((*hc)[ihit]);
     hit_in->set_event_id(event->GetEventID());
-    // DEBUG
-    G4cout << "Event ID: " << hit_in->get_event_id() << "\n";
-    G4cout << "Track ID: " << hit_in->get_track_id() << "\n";
-    G4cout << "Parent ID: " << hit_in->get_parent_id() << "\n";
-    G4cout << "Volume: " << hit_in->get_volume() << "\n";
-    G4cout << "Particle: " << hit_in->get_particle() << "\n";
-    G4cout << "Creator process: " << hit_in->get_process() << "\n";
-    G4cout << "Position: " << G4BestUnit(hit_in->get_position(), "Length")
-           << "\n";
-    G4cout << "Energy: " << G4BestUnit(hit_in->get_energy(), "Energy") << "\n";
-    G4cout << "Time: " << G4BestUnit(hit_in->get_time(), "Time") << "\n"
-           << G4endl;
-    // DEBUG
-    m_hits.emplace_back(*hit_in);
+    m_hits.push_back(*hit_in);
   }
   G4Run::RecordEvent(event);
   return;
@@ -66,5 +51,5 @@ void Run::Merge(G4Run const* from_run) {
   return;
 }
 
-vector<Hit> Run::get_hits() const { return m_hits; }
+deque<Hit> Run::get_hits() const { return m_hits; }
 }  // namespace dgg4

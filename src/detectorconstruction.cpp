@@ -33,7 +33,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
   auto det_mat = nist->FindOrBuildMaterial("G4_SODIUM_IODIDE");
   auto det_log = new G4LogicalVolume(det_solid, det_mat, "det_log");
   m_sensitiveVols.push_back(det_log);
-  new G4PVPlacement(nullptr, G4ThreeVector(0, 0, 20 * cm), det_log, "det_phys",
+  new G4PVPlacement(nullptr, G4ThreeVector(0, 0, -20 * cm), det_log, "det_phys",
                     world_log, false, 0, true);
   return world_phys;
 }
