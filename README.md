@@ -23,15 +23,15 @@ TODO
 
 ## UI Commands ##
 
-`/dgg4/run/save_data`
-Description: toggle saving hit data to disk
-Argument: bool
-Default: false
+`/dgg4/run/save_data`<br>
+Description: toggle saving hit data to disk<br>
+Argument: bool<br>
+Default: false<br>
 
-`/dgg4/run/save_path`
-Description: set the path of the output data file
-Argument: string
-Default: hits.csv
+`/dgg4/run/save_path`<br>
+Description: set the path of the output data file<br>
+Argument: string<br>
+Default: hits.csv<br>
 
 ## Output Data ##
 
