@@ -31,9 +31,6 @@ void Run::RecordEvent(G4Event const* event) {
     return;
   }
 
-  G4cout << "Event had " << hc->entries() << " hits" << G4endl;
-  // Hit doesn't have a constructor without args, so we use reserve()
-  // to pre-allocate, instead of initializing with the # of elements
   for (std::size_t ihit = 0; ihit < hc->entries(); ++ihit) {
     auto hit_in = dynamic_cast<Hit*>((*hc)[ihit]);
     hit_in->set_event_id(event->GetEventID());

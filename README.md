@@ -15,14 +15,24 @@ Lots TODO here!
 
 ## Compilation ##
 
-TODO
+Make a build directory and run `cmake`, then run `make`
 
 ## Adding a Detector ##
 
+TODO
+
 ## UI Commands ##
 
-TODO
+`/dgg4/run/save_data`
+Description: toggle saving hit data to disk
+Argument: bool
+Default: false
+
+`/dgg4/run/save_path`
+Description: set the path of the output data file
+Argument: string
+Default: hits.csv
 
 ## Output Data ##
 
-TODO
+Currently just a CSV. TODO: HDF5

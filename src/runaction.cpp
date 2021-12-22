@@ -5,14 +5,19 @@
 #include "G4SystemOfUnits.hh"
 #include "globals.hh"
 #include "run.hpp"
+#include "runmessenger.hpp"
 
 using namespace std;
 namespace dgg4 {
-RunAction::RunAction() : m_path("hits.csv") {
+RunAction::RunAction() : m_fSave(false), m_path("hits.csv") {
   G4cout << "Creating RunAction" << G4endl;
+  m_messenger = new RunMessenger(this);
 }
 
-RunAction::~RunAction() { G4cout << "Deleting RunAction" << G4endl; }
+RunAction::~RunAction() {
+  G4cout << "Deleting RunAction" << G4endl;
+  delete m_messenger;
+}
 
 G4Run* RunAction::GenerateRun() { return dynamic_cast<G4Run*>(new Run); }
 
@@ -32,8 +37,10 @@ void RunAction::EndOfRunAction(G4Run const* run) {
   if (IsMaster()) {
     G4cout << "Finishing processing all " << nevents << " in main thread"
            << G4endl;
-    auto our_run = dynamic_cast<Run const*>(run);
-    write_csv(our_run->get_hits());
+    if (m_fSave) {
+      auto our_run = dynamic_cast<Run const*>(run);
+      write_csv(our_run->get_hits());
+    }
   }
   return;
 }
@@ -55,6 +62,16 @@ void RunAction::write_csv(deque<Hit> const& hits) {
     out_file << hit.get_time() / ns << "\n";
   }
   out_file.close();
+  return;
+}
+bool RunAction::save_data() const { return m_fSave; }
+void RunAction::save_data(bool save) {
+  m_fSave = save;
+  return;
+}
+G4String RunAction::get_path() const { return m_path; }
+void RunAction::set_path(G4String const& path) {
+  m_path = path;
   return;
 }
 }  // namespace dgg4

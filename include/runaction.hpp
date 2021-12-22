@@ -6,6 +6,7 @@
 #include "hit.hpp"
 
 namespace dgg4 {
+class RunMessenger;
 class RunAction : public G4UserRunAction {
  public:
   RunAction();
@@ -14,9 +15,16 @@ class RunAction : public G4UserRunAction {
   void BeginOfRunAction(G4Run const*) override final;
   void EndOfRunAction(G4Run const* run) override final;
 
+  bool save_data() const;
+  void save_data(bool save);
+  G4String get_path() const;
+  void set_path(G4String const& path);
+
  private:
   void write_csv(std::deque<Hit> const& hits);
+  bool m_fSave;
   G4String m_path;
+  RunMessenger* m_messenger;
 };
 }  // namespace dgg4
 
