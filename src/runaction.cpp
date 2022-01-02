@@ -53,6 +53,7 @@ void RunAction::write_csv(deque<Hit> const& hits) {
     out_file << hit.get_event_id() << ",";
     out_file << hit.get_track_id() << ",";
     out_file << hit.get_parent_id() << ",";
+    out_file << hit.get_particle() << ",";
     out_file << hit.get_process() << ",";
     out_file << hit.get_volume() << ",";
     out_file << hit.get_position().getX() / cm << ",";
