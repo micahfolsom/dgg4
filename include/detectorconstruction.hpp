@@ -14,6 +14,9 @@ class GeometryMessenger;
 class BaseGeometry;
 class DetectorConstruction : public G4VUserDetectorConstruction {
  public:
+  /// Available geometries: example1, example3
+  static const std::set<G4String> Geometries;
+
   DetectorConstruction();
   ~DetectorConstruction();
   G4VPhysicalVolume* Construct() override final;
@@ -21,6 +24,11 @@ class DetectorConstruction : public G4VUserDetectorConstruction {
 
   inline std::list<G4String> const& get_sd_names() const { return m_SDNames; }
   void set_sd(G4String const& lvname, G4String const& sdname);
+  inline G4String const& get_geometry() const { return m_selectedGeometry; }
+  void set_geometry(G4String const& geometry) {
+    m_selectedGeometry = geometry;
+    return;
+  }
   /// Clears out all of the geometry objects - solids, logical volumes, etc.
   /// Construct() and ConstructSDandField() are called once again, so any
   /// updates to the geometry objects will be applied. The visualization is
@@ -49,6 +57,8 @@ class DetectorConstruction : public G4VUserDetectorConstruction {
   /// Map of available geometries, keyed by string name, including the
   /// outermost volume ("world").
   std::map<G4String, std::shared_ptr<BaseGeometry>> m_geometries;
+  /// Currently selected geometry string name
+  G4String m_selectedGeometry;
 };
 }  // namespace dgg4
 

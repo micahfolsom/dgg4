@@ -25,17 +25,22 @@ TODO
 
 `/dgg4/run/save_data`<br>
 Description: toggle saving hit data to disk<br>
-Argument: bool<br>
+Argument: true false<br>
 Default: false<br>
 
 `/dgg4/run/save_path`<br>
 Description: set the path of the output data file<br>
-Argument: string<br>
+Argument: path<br>
 Default: hits.csv<br>
 
 `/dgg4/geometry/update`<br>
 Description: update/reload/reinitialize the geometry<br>
 Argument: none<br>
+
+`/dgg4/geometry/select`<br>
+Description: choose which geometry to use<br>
+Argument: example1, example3<br>
+Default: example1<br>
 
 ## Output Data ##
 

@@ -15,6 +15,7 @@
 #include "G4UImanager.hh"
 #include "G4VVisManager.hh"
 #include "ex1geometry.hpp"
+#include "ex3geometry.hpp"
 #include "geometrymessenger.hpp"
 #include "globals.hh"
 #include "sensitivedetector.hpp"
@@ -22,8 +23,14 @@
 using namespace std;
 
 namespace dgg4 {
+const set<G4String> DetectorConstruction::Geometries =
+    set<G4String>{"example1", "example3"};
 DetectorConstruction::DetectorConstruction()
-    : G4VUserDetectorConstruction(), m_fSDInit(false), m_SDLVList(), m_SD() {
+    : G4VUserDetectorConstruction(),
+      m_fSDInit(false),
+      m_SDLVList(),
+      m_SD(),
+      m_selectedGeometry("example1") {
   G4cout << "Creating DetectorConstruction" << G4endl;
   // Default available SDs
   // The active detector volume (scintillator, semiconductor, etc)
@@ -37,8 +44,10 @@ DetectorConstruction::DetectorConstruction()
 
   m_messenger = make_unique<GeometryMessenger>(this);
 
-  m_geometries["world"] = make_unique<World>();
-  m_geometries["example1"] = make_unique<Ex1Geometry>();
+  // Create geometry objects
+  m_geometries["world"] = make_shared<World>();
+  m_geometries["example1"] = make_shared<Ex1Geometry>();
+  m_geometries["example3"] = make_shared<Ex3Geometry>();
 }
 
 DetectorConstruction::~DetectorConstruction() {
@@ -63,10 +72,17 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
     G4cout << "Detected " << NTHREADS << " threads, initialized SD maps"
            << G4endl;
   }
+
+  // Build everything, starting with the outermost
   auto world = dynamic_pointer_cast<World>(m_geometries["world"]);
   world->build();
-  auto selected = dynamic_pointer_cast<Ex1Geometry>(m_geometries["example1"]);
-  selected->build(world->get_logical());
+  if (m_selectedGeometry == "example1") {
+    auto selected = dynamic_pointer_cast<Ex1Geometry>(m_geometries["example1"]);
+    selected->build(world->get_logical());
+  } else if (m_selectedGeometry == "example3") {
+    auto selected = dynamic_pointer_cast<Ex3Geometry>(m_geometries["example3"]);
+    selected->build(world->get_logical());
+  }
   return world->get_physical();
 }
 void DetectorConstruction::ConstructSDandField() {
