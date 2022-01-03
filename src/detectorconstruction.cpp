@@ -1,6 +1,10 @@
 #include "detectorconstruction.hpp"
 
+#include <algorithm>
+
 #include "G4Box.hh"
+#include "G4LogicalBorderSurface.hh"
+#include "G4LogicalSkinSurface.hh"
 #include "G4LogicalVolume.hh"
 #include "G4LogicalVolumeStore.hh"
 #include "G4MTRunManager.hh"
@@ -8,6 +12,9 @@
 #include "G4PVPlacement.hh"
 #include "G4SDManager.hh"
 #include "G4SystemOfUnits.hh"
+#include "G4UImanager.hh"
+#include "G4VVisManager.hh"
+#include "geometrymessenger.hpp"
 #include "globals.hh"
 #include "sensitivedetector.hpp"
 using namespace std;
@@ -15,6 +22,7 @@ using namespace std;
 namespace dgg4 {
 DetectorConstruction::DetectorConstruction()
     : G4VUserDetectorConstruction(), m_fSDInit(false), m_SDLVList(), m_SD() {
+  G4cout << "Creating DetectorConstruction" << G4endl;
   // Default available SDs
   // The active detector volume (scintillator, semiconductor, etc)
   m_SDNames.emplace_back("detector_sd");
@@ -24,7 +32,8 @@ DetectorConstruction::DetectorConstruction()
   m_SDNames.emplace_back("mechanical_sd");
   // Whatever else that's not captured by the above
   m_SDNames.emplace_back("other_sd");
-  G4cout << "Creating DetectorConstruction" << G4endl;
+
+  m_messenger = make_unique<GeometryMessenger>(this);
 }
 
 DetectorConstruction::~DetectorConstruction() {
@@ -40,7 +49,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
   // after Construct()
   if (!m_fSDInit) {
     auto const NTHREADS =
-        G4MTRunManager::GetMasterRunManager()->GetNumberOfThreads() + 1;
+        G4MTRunManager::GetMasterRunManager()->GetNumberOfThreads();
     for (auto const& sdname : m_SDNames) {
       m_SD[sdname] = vector<SensitiveDetector*>(NTHREADS, nullptr);
       m_SDLVList[sdname] = list<G4String>();
@@ -62,7 +71,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
   auto det_solid = new G4Box("det_solid", 5 * cm, 5 * cm, 5 * cm);
   auto det_mat = nist->FindOrBuildMaterial("G4_SODIUM_IODIDE");
   auto det_log = new G4LogicalVolume(det_solid, det_mat, "det_log");
-  m_SDLVList["detector_sd"].emplace_back("det_log");
+  set_sd("det_log", "detector_sd");
   new G4PVPlacement(nullptr, G4ThreeVector(0, 0, -20 * cm), det_log, "det_phys",
                     world_log, false, 0, true);
   return world_phys;
@@ -72,36 +81,87 @@ void DetectorConstruction::ConstructSDandField() {
   auto const ithread = G4Threading::G4GetThreadId() + 1;
   G4cout << "ConstructSDandField() called from thread " << ithread << G4endl;
   auto sd_man = G4SDManager::GetSDMpointer();
-  auto lvstore = G4LogicalVolumeStore::GetInstance();
   for (auto const& sdname : m_SDNames) {
-    // Was this SD allocated in this thread yet?
+    // Allocate and register with Geant4 - it will take care of the memory
     if (!m_SD[sdname][ithread]) {
       auto sd = new SensitiveDetector(sdname);
       m_SD[sdname][ithread] = sd;
       sd_man->AddNewDetector(sd);
-      G4cout << "Allocated and registered SD " << sdname << "in thread "
+      G4cout << "Allocated and registered SD " << sdname << " in thread "
              << ithread << G4endl;
     }
     // Loop over all of the LVs connected to this SD
     for (auto const& lvname : m_SDLVList[sdname]) {
-      // Connect SDs and LVs. This is a bit clunky - we need to loop over the
-      // LVs to find the pointer to the one with the name we want
-      bool found = false;
-      for (auto ilv = lvstore->begin(); ilv != lvstore->end(); ++ilv) {
-        if ((*ilv)->GetName() == lvname) {
-          found = true;
-          (*ilv)->SetSensitiveDetector(m_SD[sdname][ithread]);
-          G4cout << "Connected SD=" << sdname << " to LV=" << lvname << G4endl;
-        }
-      }
-      if (!found) {
-        G4Exception("DetectorConstruction::ConstructSDandField()",
-                    "DGG4Warning", JustWarning,
-                    "A logical volume name attached to an SD did not exist. "
-                    "Probably a typo somewhere?");
-      }
+      // If the LV doesn't exist (it should, Construct() was already called)
+      // then we'll get a fatal exception here, which is right. That is a
+      // hard-coded bug - any user input LV should be checked on the UI side
+      // before being brought in
+      SetSensitiveDetector(lvname, m_SD[sdname][ithread]);
     }
   }
   return;
+}
+void DetectorConstruction::set_sd(G4String const& lvname,
+                                  G4String const& sdname) {
+  // A bit easier than using std::find() on the list of SD names
+  if (!m_SDLVList.contains(sdname)) {
+    G4String msg = "The SD specified (" + sdname + ") does not exist";
+    G4Exception("DetectorConstruction::set_sd()", "DGG4Warning", JustWarning,
+                msg);
+  }
+  // Check if the LV is already on the list
+  if (std::find(m_SDLVList[sdname].begin(), m_SDLVList[sdname].end(), lvname) !=
+      m_SDLVList[sdname].end()) {
+    G4String msg = "The LV " + lvname + " is already connected to " + sdname;
+    G4Exception("DetectorConstruction::set_sd()", "DGG4Warning", JustWarning,
+                msg);
+  }
+  m_SDLVList[sdname].push_back(lvname);
+  G4cout << "Connected " << lvname << " to " << sdname << G4endl;
+  return;
+}
+void DetectorConstruction::update_geometry() {
+  G4cout << "Reloading geometry. This may take a moment...";
+  auto rman = G4RunManager::GetRunManager();
+  rman->ReinitializeGeometry(true);
+  // Clear out Solids, LVs, and PVs. Also calls GeometryHasBeenModified()
+  // Note that ReinitializeGeometry() does not catch the optical borders
+  G4LogicalSkinSurface::CleanSurfaceTable();
+  G4LogicalBorderSurface::CleanSurfaceTable();
+
+  // Reset SD to LV links - geometric objects should connect LVs to SDs in
+  // their build functions
+  for (auto& [key, val] : m_SDLVList) {
+    val.clear();
+  }
+
+  // If we are in vis mode, we need to re-run /run/initialize and run
+  // some /vis commands to get back to a clean state where we are showing
+  // the geometry. In batch mode, the RunManager will be re-initialized
+  // when /run/beamOn is called, so it's not necessary to call explicitly
+  if (G4VVisManager::GetConcreteInstance()) {
+    G4UImanager::GetUIpointer()->ApplyCommand("/run/initialize");
+    G4UImanager::GetUIpointer()->ApplyCommand("/vis/drawVolume");
+    G4UImanager::GetUIpointer()->ApplyCommand("/vis/scene/add/trajectories");
+    G4UImanager::GetUIpointer()->ApplyCommand("/vis/scene/add/hits");
+    G4UImanager::GetUIpointer()->ApplyCommand(
+        "/vis/scene/add/axes 0 0 0 10 cm");
+    G4UImanager::GetUIpointer()->ApplyCommand(
+        "/vis/scene/endOfEventAction accumulate 100");
+  }
+  G4cout << "...geometry reload complete." << G4endl;
+  return;
+}
+bool DetectorConstruction::check_lv_exists(G4String const& lvname) const {
+  // Connect SDs and LVs. This is a bit clunky - we need to loop over the
+  // LVs to find the pointer to the one with the name we want
+  auto lvstore = G4LogicalVolumeStore::GetInstance();
+  bool found = false;
+  for (auto ilv = lvstore->begin(); ilv != lvstore->end(); ++ilv) {
+    if ((*ilv)->GetName() == lvname) {
+      found = true;
+    }
+  }
+  return found;
 }
 }  // namespace dgg4

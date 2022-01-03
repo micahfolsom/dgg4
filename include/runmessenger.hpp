@@ -22,4 +22,4 @@ class RunMessenger : public G4UImessenger {
 };
 }  // namespace dgg4
 
-#endif
+#endif  // RUN_MESSENGER_HPP
