@@ -33,6 +33,10 @@ Description: set the path of the output data file<br>
 Argument: string<br>
 Default: hits.csv<br>
 
+`/dgg4/geometry/update`<br>
+Description: update/reload/reinitialize the geometry<br>
+Argument: none<br>
+
 ## Output Data ##
 
 Currently just a CSV. TODO: HDF5

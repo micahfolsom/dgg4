@@ -16,9 +16,9 @@ class RunMessenger : public G4UImessenger {
 
  private:
   RunAction* m_runAction;
-  G4UIdirectory* m_directory;
-  G4UIcmdWithABool* m_saveDataCmd;
-  G4UIcmdWithAString* m_savePathCmd;
+  std::unique_ptr<G4UIdirectory> m_directory;
+  std::unique_ptr<G4UIcmdWithABool> m_saveDataCmd;
+  std::unique_ptr<G4UIcmdWithAString> m_savePathCmd;
 };
 }  // namespace dgg4
 

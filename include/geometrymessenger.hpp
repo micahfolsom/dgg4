@@ -15,7 +15,7 @@ class GeometryMessenger : public G4UImessenger {
 
  private:
   DetectorConstruction* m_DC;
-  G4UIdirectory* m_directory;
+  std::unique_ptr<G4UIdirectory> m_directory;
   std::unique_ptr<G4UIcmdWithoutParameter> m_updateCmd;
 };
 }  // namespace dgg4
