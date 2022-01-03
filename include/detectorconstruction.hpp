@@ -2,6 +2,7 @@
 #define DETECTOR_CONSTRUCTION_HPP
 #include <list>
 #include <memory>
+#include <set>
 
 #include "G4VUserDetectorConstruction.hh"
 class G4VPhysicalVolume;
@@ -11,7 +12,6 @@ namespace dgg4 {
 class SensitiveDetector;
 class GeometryMessenger;
 class BaseGeometry;
-class World;
 class DetectorConstruction : public G4VUserDetectorConstruction {
  public:
   DetectorConstruction();
@@ -45,11 +45,10 @@ class DetectorConstruction : public G4VUserDetectorConstruction {
   /// why we keep the pointers and reconnect to the LVs.
   std::map<G4String, std::vector<SensitiveDetector*>> m_SD;
   /// Geometry messenger.
-  std::unique_ptr<GeometryMessenger> m_messenger;
-  /// World geometry - this is the outermost volume, filled with vacuum.
-  std::unique_ptr<World> m_world;
-  /// Map of available geometries, keyed by string name.
-  std::map<G4String, std::unique_ptr<BaseGeometry>> m_geometries;
+  std::shared_ptr<GeometryMessenger> m_messenger;
+  /// Map of available geometries, keyed by string name, including the
+  /// outermost volume ("world").
+  std::map<G4String, std::shared_ptr<BaseGeometry>> m_geometries;
 };
 }  // namespace dgg4
 
