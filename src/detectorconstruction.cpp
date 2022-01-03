@@ -17,6 +17,7 @@
 #include "geometrymessenger.hpp"
 #include "globals.hh"
 #include "sensitivedetector.hpp"
+#include "world.hpp"
 using namespace std;
 
 namespace dgg4 {
@@ -34,6 +35,10 @@ DetectorConstruction::DetectorConstruction()
   m_SDNames.emplace_back("other_sd");
 
   m_messenger = make_unique<GeometryMessenger>(this);
+
+  m_world = make_unique<World>();
+
+  // m_geometries["example1"] = make_unique<Ex1Geometry>();
 }
 
 DetectorConstruction::~DetectorConstruction() {
@@ -58,8 +63,9 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
     G4cout << "Detected " << NTHREADS << " threads, initialized SD maps"
            << G4endl;
   }
+  m_world->build();
   // World
-  auto world_solid = new G4Box("world_solid", 0.5 * m, 0.5 * m, 0.5 * m);
+  /*auto world_solid = new G4Box("world_solid", 0.5 * m, 0.5 * m, 0.5 * m);
   auto nist = G4NistManager::Instance();
   auto world_mat = nist->FindOrBuildMaterial("G4_AIR");
   auto world_log = new G4LogicalVolume(world_solid, world_mat, "world_log");
@@ -74,7 +80,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
   set_sd("det_log", "detector_sd");
   new G4PVPlacement(nullptr, G4ThreeVector(0, 0, -20 * cm), det_log, "det_phys",
                     world_log, false, 0, true);
-  return world_phys;
+                    */
+  return m_world->get_physical();
 }
 void DetectorConstruction::ConstructSDandField() {
   // Allocate and register SDs, if necessary
