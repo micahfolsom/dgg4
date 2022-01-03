@@ -7,6 +7,8 @@ to update it, which works from either a .mac file or the visualization. These
 commands can be run _after `/run/initialize` is called_, instead of having to
 do so beforehand!
 
+![Example of switching between Geant4 example B1 and B3](images/dynamic_geometry_1.gif)
+
 Behind the scenes, the geometry is deleted and rebuilt from scratch. Then the
 sensitive detectors are re-attached from their respective threads to whatever
 logical volumes they map to.
