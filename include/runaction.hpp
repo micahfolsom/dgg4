@@ -21,7 +21,7 @@ class RunAction : public G4UserRunAction {
   void set_path(G4String const& path);
 
  private:
-  void write_csv(std::deque<Hit> const& hits);
+  void write_h5(std::deque<Hit> const& hits);
   bool m_fSave;
   G4String m_path;
   RunMessenger* m_messenger;

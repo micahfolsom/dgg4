@@ -44,7 +44,7 @@ Default: false<br>
 `/dgg4/run/save_path`<br>
 Description: set the path of the output data file<br>
 Argument: path<br>
-Default: hits.csv<br>
+Default: hits.h5<br>
 
 `/dgg4/geometry/update`<br>
 Description: update/reload/reinitialize the geometry<br>
@@ -57,4 +57,9 @@ Default: example1<br>
 
 ## Output Data ##
 
-Currently just a CSV with a list of general hit information.
+Data is output as HDF5, `.h5`, where each attribute of the `Hit` is a dataset.
+
+## Dependencies ##
+
+Besides Geant4, this requires [HDF5](https://portal.hdfgroup.org/display/HDF5).
+`sudo apt install libhdf5-dev` on Ubuntu.

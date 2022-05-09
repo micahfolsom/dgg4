@@ -21,13 +21,16 @@ void Run::RecordEvent(G4Event const* event) {
       run_man->GetUserDetectorConstruction());
   auto sd_names = dc->get_sd_names();
   for (auto sdname : sd_names) {
-    sdname += "_hits";
-    auto hc_id = G4SDManager::GetSDMpointer()->GetCollectionID(sdname);
+    // sdname += "_hits";
+    //  This line isn't working for some reason?
+    /*int hc_id = G4SDManager::GetSDMpointer()->GetCollectionID(sdname);
     if (hc_id == -1) {
       G4cerr << "HC ID was < 0; it was not Initialized()'d for " << sdname
              << "!" << G4endl;
       return;
-    }
+    }*/
+    // Just detector_sd_hits for now
+    int hc_id = 0;
     auto hc_ev = event->GetHCofThisEvent();
     if (!hc_ev) {
       G4cerr << "No HitsCollection for this event! ID: " << event->GetEventID()

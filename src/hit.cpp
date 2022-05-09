@@ -1,5 +1,8 @@
 #include "hit.hpp"
 
+#include "G4SystemOfUnits.hh"
+
+using namespace std;
 namespace dgg4 {
 G4ThreadLocal G4Allocator<Hit>* HitAllocator = nullptr;
 

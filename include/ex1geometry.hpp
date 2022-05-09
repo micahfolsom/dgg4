@@ -3,9 +3,10 @@
 #include "basegeometry.hpp"
 
 namespace dgg4 {
+class DetectorConstruction;
 class Ex1Geometry : public BaseGeometry {
  public:
-  Ex1Geometry();
+  Ex1Geometry(DetectorConstruction* dc);
   ~Ex1Geometry();
 
   /// This is nearly a line-for-line copy of the Construct() function in example
@@ -13,7 +14,7 @@ class Ex1Geometry : public BaseGeometry {
   void build(G4LogicalVolume* mother_log) override final;
 
  private:
-  // nothing
+  DetectorConstruction* m_DC;
 };
 }  // namespace dgg4
 

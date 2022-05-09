@@ -46,7 +46,7 @@ DetectorConstruction::DetectorConstruction()
 
   // Create geometry objects
   m_geometries["world"] = make_shared<World>();
-  m_geometries["example1"] = make_shared<Ex1Geometry>();
+  m_geometries["example1"] = make_shared<Ex1Geometry>(this);
   m_geometries["example3"] = make_shared<Ex3Geometry>();
 }
 

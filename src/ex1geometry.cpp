@@ -5,11 +5,14 @@
 #include "G4LogicalVolume.hh"
 #include "G4NistManager.hh"
 #include "G4PVPlacement.hh"
+#include "G4RunManager.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4Trd.hh"
+#include "detectorconstruction.hpp"
 
 namespace dgg4 {
-Ex1Geometry::Ex1Geometry() : BaseGeometry("example1") {
+Ex1Geometry::Ex1Geometry(DetectorConstruction* dc)
+    : BaseGeometry("example1"), m_DC(dc) {
   G4cout << "Creating Ex1Geometry" << G4endl;
 }
 Ex1Geometry::~Ex1Geometry() { G4cout << "Deleting Ex1Geometry" << G4endl; }
@@ -36,6 +39,7 @@ void Ex1Geometry::build(G4LogicalVolume* mother_log) {
   G4LogicalVolume* logicEnv = new G4LogicalVolume(solidEnv,  // its solid
                                                   env_mat,   // its material
                                                   lname);    // its name
+  m_DC->set_sd(lname, "detector_sd");
 
   auto pname = m_name + "_envelope_phys";
   new G4PVPlacement(nullptr,          // no rotation
