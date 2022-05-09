@@ -4,7 +4,6 @@
 #include "G4THitsCollection.hh"
 #include "G4ThreeVector.hh"
 #include "G4VHit.hh"
-#include "h5hit.hpp"
 
 namespace dgg4 {
 class Hit : public G4VHit {

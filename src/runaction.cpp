@@ -153,7 +153,7 @@ void RunAction::write_h5(deque<Hit> const& hits) {
   H5Dwrite(hdataset, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL, H5P_DEFAULT,
            energy.data());
   H5Dclose(hdataset);
-  hdataset = H5Dcreate2(hfile, "timestamp", H5T_NATIVE_FLOAT, hdataspace,
+  hdataset = H5Dcreate2(hfile, "timestamp", H5T_NATIVE_DOUBLE, hdataspace,
                         H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
   H5Dwrite(hdataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT,
            ts.data());
